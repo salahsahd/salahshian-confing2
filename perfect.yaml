@@ -17,96 +17,83 @@ dns:
     - 9.9.9.9
     - 208.67.222.222
 
-proxies:
-  - name: "🇺🇸 Salah Fast (VLESS)"
-    type: vless
-    server: 88.216.57.220
-    port: 443
-    uuid: 02722550-1915-4629-a653-cbe95e594f70
-    network: tcp
-    udp: true
-    tls: true
-    flow: xtls-rprx-vision
-    servername: cdn12usa.goonars.com
-    reality-opts:
-      public-key: vFnG0SzHIv43o3L8bw4reKp3EIFuSS-BCyBqbWUsYCo
-      short-id: 6591f200
-    client-fingerprint: firefox
+# این بخش جادوییه! به جای ۵ سرور، هزاران سرور زنده رو می‌گیره
+proxy-providers:
+  kobabi:
+    type: http
+    url: "https://raw.githubusercontent.com/liketolivefree/kobabi/main/clash_mt_ir_prov_l.yaml"
+    interval: 3600
+    path: ./providers/kobabi.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
 
-  - name: "🇺🇸 Kurdesh Fastly (VLESS)"
-    type: vless
-    server: 140.248.176.149
-    port: 443
-    uuid: cbcf2255-6d66-4039-b7d6-c10d6ffc99e7
-    network: tcp
-    udp: true
-    tls: true
-    flow: xtls-rprx-vision
-    servername: ssl.fastly.com
-    reality-opts:
-      public-key: NozDA4apA_XQ_wzcJCZx7VXAD285J_HSs4w_GvBfJHA
-      short-id: 63903c2e
-    client-fingerprint: chrome
-
-  - name: "🇩🇪 Kurdesh H2 (Hysteria2)"
-    type: hysteria2
-    server: 64.188.98.171
-    port: 443
-    password: mkL3AfdSZIpTWRB9TcWPn9vywPGN89MRHg3ToRDj
-    sni: germany3.h2corp.local
-    skip-cert-verify: true
-
-  - name: "🇺🇸 Salah Trojan (Trojan)"
-    type: trojan
-    server: 165.215.250.14
-    port: 443
-    password: humanity
-    sni: www.ignitelimit.com
-    skip-cert-verify: true
-    network: ws
-    ws-opts:
-      path: /assignment
-      headers:
-        Host: www.ignitelimit.com
-
-  - name: "🇩🇪 H2 Aspidnet (Hysteria2)"
-    type: hysteria2
-    server: 162.249.125.133
-    port: 443
-    password: QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s
-    obfs: salamander
-    obfs-password: c1b4086fea89914496c7e10967a419216566
-    sni: hy2-new.aspidnet.xyz
-    skip-cert-verify: true
+  no_more_walls:
+    type: http
+    url: "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.meta.yml"
+    interval: 3600
+    path: ./providers/nowalls.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
 
 proxy-groups:
-  - name: "🚀 انتخاب خودکار (بهترین پینگ)"
+  # گروه خودکار برای تمام کارها (سریع‌ترین سرور رو انتخاب می‌کنه)
+  - name: "🚀 انتخاب خودکار (همه کارها)"
     type: url-test
     url: "http://www.gstatic.com/generate_204"
     interval: 300
     tolerance: 50
-    proxies:
-      - "🇺🇸 Salah Fast (VLESS)"
-      - "🇺🇸 Kurdesh Fastly (VLESS)"
-      - "🇩🇪 Kurdesh H2 (Hysteria2)"
-      - "🇺🇸 Salah Trojan (Trojan)"
-      - "🇩🇪 H2 Aspidnet (Hysteria2)"
+    use:
+      - kobabi
+      - no_more_walls
 
+  # گروه اختصاصی برای هوش مصنوعی (ChatGPT, Claude, Gemini)
+  # این گروه فقط بهترین سرورها رو برای سایت‌های AI انتخاب می‌کنه
+  - name: "🤖 هوش مصنوعی (AI)"
+    type: url-test
+    url: "https://chatgpt.com"
+    interval: 300
+    tolerance: 50
+    use:
+      - kobabi
+      - no_more_walls
+
+  # انتخاب دستی (اگر خواستی خودت یه سرور خاص رو انتخاب کنی)
   - name: "🎯 انتخاب دستی"
     type: select
     proxies:
-      - "🚀 انتخاب خودکار (بهترین پینگ)"
-      - "🇺🇸 Salah Fast (VLESS)"
-      - "🇺🇸 Kurdesh Fastly (VLESS)"
-      - "🇩🇪 Kurdesh H2 (Hysteria2)"
-      - "🇺🇸 Salah Trojan (Trojan)"
-      - "🇩🇪 H2 Aspidnet (Hysteria2)"
-      - "DIRECT"
+      - "🚀 انتخاب خودکار (همه کارها)"
+      - "🤖 هوش مصنوعی (AI)"
+      - DIRECT
+    use:
+      - kobabi
+      - no_more_walls
 
 rules:
+  # 1. شبکه‌های داخلی و لوکال
   - IP-CIDR,127.0.0.0/8,DIRECT
   - IP-CIDR,192.168.0.0/16,DIRECT
   - IP-CIDR,10.0.0.0/8,DIRECT
+
+  # 2. سایت‌های ایرانی مستقیم باز شوند
   - DOMAIN-SUFFIX,ir,DIRECT
   - GEOIP,IR,DIRECT
-  - MATCH,🎯 انتخاب دستی
+
+  # 3. سایت‌های هوش مصنوعی (تضمینی روی بهترین سرور می‌روند)
+  - DOMAIN-SUFFIX,openai.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,anthropic.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,claude.ai,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,gemini.google.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,bard.google.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,deepseek.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,grok.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,x.ai,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,perplexity.ai,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,copilot.microsoft.com,🤖 هوش مصنوعی (AI)
+
+  # 4. بقیه ترافیک‌ها برن روی حالت خودکار
+  - MATCH,🚀 انتخاب خودکار (همه کارها)
