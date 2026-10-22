@@ -1,5 +1,3 @@
-geodata-mode: true
-geo-auto-update: true
 mixed-port: 7890
 allow-lan: false
 mode: rule
@@ -109,6 +107,6 @@ rules:
   - IP-CIDR,127.0.0.0/8,DIRECT
   - IP-CIDR,192.168.0.0/16,DIRECT
   - IP-CIDR,10.0.0.0/8,DIRECT
+  - DOMAIN-SUFFIX,ir,DIRECT
   - GEOIP,IR,DIRECT
-  - GEOSITE,IR,DIRECT
   - MATCH,🎯 انتخاب دستی
