@@ -4,6 +4,7 @@ mode: rule
 log-level: info
 ipv6: false
 
+# ==================== تنظیمات DNS ====================
 dns:
   enable: true
   ipv6: false
@@ -17,251 +18,100 @@ dns:
     - 9.9.9.9
     - 208.67.222.222
 
-# ==================== سرورهای اختصاصی خودمان ====================
-proxies:
-  - name: "US-AI-1 (Reality)"
-    type: vless
-    server: 47.253.226.114
-    port: 443
-    uuid: 055a1ce8-2a16-4a0d-a2c2-22826c9b2413
-    network: tcp
-    udp: true
-    tls: true
-    flow: xtls-rprx-vision
-    servername: www.cloudflare.com
-    reality-opts:
-      public-key: Svl81isn16RPAFnjtmYw7A6TPnsEPLHuYYaJht65Rzc
-    client-fingerprint: chrome
+# ==================== دریافت خودکار سرورها ====================
+proxy-providers:
+  # منبع اول: مخزن Kobabi (به‌روزرسانی خودکار)
+  kobabi:
+    type: http
+    url: "https://raw.githubusercontent.com/liketolivefree/kobabi/main/clash_mt_ir_prov_l.yaml"
+    interval: 3600
+    path: ./providers/kobabi.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
 
-  - name: "US-AI-2 (Reality)"
-    type: vless
-    server: 140.248.176.149
-    port: 443
-    uuid: cbcf2255-6d66-4039-b7d6-c10d6ffc99e7
-    network: tcp
-    udp: true
-    tls: true
-    flow: xtls-rprx-vision
-    servername: ssl.fastly.com
-    reality-opts:
-      public-key: NozDA4apA_XQ_wzcJCZx7VXAD285J_HSs4w_GvBfJHA
-      short-id: 63903c2e
-    client-fingerprint: chrome
+  # منبع دوم: NoMoreWalls
+  nowalls:
+    type: http
+    url: "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.meta.yml"
+    interval: 3600
+    path: ./providers/nowalls.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
 
-  - name: "US-AI-3 (Reality)"
-    type: vless
-    server: 199.232.203.85
-    port: 443
-    uuid: cbcf2255-6d66-4039-b7d6-c10d6ffc99e7
-    network: tcp
-    udp: true
-    tls: true
-    flow: xtls-rprx-vision
-    servername: default.ssl.fastly.net
-    reality-opts:
-      public-key: UQPZ09IzbcH0QtWGBQWlXInQ0d0FnfOz6wRdWvgxe3Y
-      short-id: ca9310c5654fa333
-    client-fingerprint: chrome
-
-  - name: "US-AI-4 (Reality)"
-    type: vless
-    server: 15.204.97.195
-    port: 23576
-    uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-    network: tcp
-    udp: true
-    tls: true
-    flow: xtls-rprx-vision
-    servername: fuck.rkn
-    reality-opts:
-      public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
-      short-id: "01"
-    client-fingerprint: chrome
-
-  - name: "GB-AI-1 (Reality)"
-    type: vless
-    server: 157.228.128.59
-    port: 443
-    uuid: df53b6c2-8005-475c-9eb9-74e1be785dc8
-    network: tcp
-    udp: true
-    tls: true
-    flow: xtls-rprx-vision
-    servername: addons.mozilla.org
-    reality-opts:
-      public-key: QnxkyscHouhaLDJHT47beyenVd4LHi62yfJIeRV01Ws
-      short-id: 06e00e7c
-    client-fingerprint: randomized
-
-  - name: "DE-AI-1 (Reality)"
-    type: vless
-    server: 31.76.64.248
-    port: 443
-    uuid: 0a322246-8c1a-47cd-9865-cccebbb2e5c1
-    network: tcp
-    udp: true
-    tls: true
-    flow: xtls-rprx-vision
-    servername: blog.api.www.cloudflare.com
-    reality-opts:
-      public-key: 9OV_GN4lgwY_4llPfYCGev-PPXLMj-hfYnveKF4tjws
-      short-id: f8
-    client-fingerprint: firefox
-
-  - name: "H2-RO (Hysteria2)"
-    type: hysteria2
-    server: 162.249.125.133
-    port: 443
-    password: QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s
-    obfs: salamander
-    obfs-password: c1b4086fea89914496c7e10967a419216566
-    sni: hy2-new.aspidnet.xyz
-    skip-cert-verify: true
-
-  - name: "H2-RU (Hysteria2)"
-    type: hysteria2
-    server: 144.31.49.138
-    port: 443
-    password: cd74c0a406664a5bc0bac098220a2468
-    obfs: salamander
-    obfs-password: 44f1c1e2f8b99e792ceed574627a1eb0
-    sni: ru1.sferavpn.pro
-    skip-cert-verify: true
-
-  - name: "H2-FI (Hysteria2)"
-    type: hysteria2
-    server: 31.76.30.97
-    port: 443
-    password: C91FbOXGY9XRymrcEebtax9R1Nj62UizoT8S6kCb7xwey8IE
-    sni: fast.wwwinternetvideo.click
-    skip-cert-verify: true
-
-  - name: "Trojan-US-1"
-    type: trojan
-    server: 165.215.250.14
-    port: 443
-    password: humanity
-    sni: www.ignitelimit.com
-    skip-cert-verify: true
-    udp: true
-    network: ws
-    ws-opts:
-      path: /assignment
-      headers:
-        Host: www.ignitelimit.com
-
-  - name: "Trojan-US-2"
-    type: trojan
-    server: 188.42.145.180
-    port: 443
-    password: humanity
-    sni: www.volumeroot.com
-    skip-cert-verify: true
-    udp: true
-    network: ws
-    ws-opts:
-      path: /assignment
-      headers:
-        Host: www.volumeroot.com
-
-  - name: "VMess-UK"
-    type: vmess
-    server: 66.163.117.58
-    port: 22324
-    uuid: 04621bae-ab36-11ec-b909-0242ac120002
-    alterId: 0
-    cipher: auto
-    udp: true
-
-  - name: "VMess-HK"
-    type: vmess
-    server: 156.245.232.239
-    port: 35043
-    uuid: b15e481d-17e4-41a8-84c2-23d4f0514d9a
-    alterId: 0
-    cipher: auto
-    udp: true
-    network: ws
-    ws-opts:
-      path: /
+  # منبع سوم: Airport (تست شده و پایدار)
+  airport:
+    type: http
+    url: "https://raw.githubusercontent.com/dongchengjie/airport/main/subs/merged/tested_within.yaml"
+    interval: 3600
+    path: ./providers/airport.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
 
 # ==================== گروه‌های پروکسی ====================
 proxy-groups:
-  # 1. گروه اختصاصی MMOBI (فقط سرورهای خودمان)
-  - name: "MMOBI"
+  # --- گروه خودکار اصلی (انتخاب سریع‌ترین سرور از بین همه منابع) ---
+  - name: "🚀 انتخاب خودکار (همه کارها)"
     type: url-test
     url: "http://www.gstatic.com/generate_204"
     interval: 300
     tolerance: 50
-    proxies:
-      - "US-AI-1 (Reality)"
-      - "US-AI-2 (Reality)"
-      - "US-AI-3 (Reality)"
-      - "US-AI-4 (Reality)"
-      - "GB-AI-1 (Reality)"
-      - "DE-AI-1 (Reality)"
-      - "H2-RO (Hysteria2)"
-      - "H2-RU (Hysteria2)"
-      - "H2-FI (Hysteria2)"
-      - "Trojan-US-1"
-      - "Trojan-US-2"
-      - "VMess-UK"
-      - "VMess-HK"
+    use:
+      - kobabi
+      - nowalls
+      - airport
 
-  # 2. گروه اختصاصی هوش مصنوعی
-  - name: "🤖 AI (Auto)"
+  # --- گروه اختصاصی هوش مصنوعی (فقط سرورهای آمریکا) ---
+  - name: "🤖 هوش مصنوعی (AI)"
     type: url-test
     url: "https://chatgpt.com"
     interval: 300
     tolerance: 50
-    proxies:
-      - "US-AI-1 (Reality)"
-      - "US-AI-2 (Reality)"
-      - "US-AI-3 (Reality)"
-      - "US-AI-4 (Reality)"
-      - "GB-AI-1 (Reality)"
-      - "DE-AI-1 (Reality)"
+    use:
+      - kobabi
+      - nowalls
+      - airport
 
-  # 3. انتخاب دستی
+  # --- گروه انتخاب دستی (با فیلتر کشورها) ---
   - name: "🎯 انتخاب دستی"
     type: select
     proxies:
-      - "MMOBI"
-      - "🤖 AI (Auto)"
-      - "US-AI-1 (Reality)"
-      - "US-AI-2 (Reality)"
-      - "US-AI-3 (Reality)"
-      - "US-AI-4 (Reality)"
-      - "GB-AI-1 (Reality)"
-      - "DE-AI-1 (Reality)"
-      - "H2-RO (Hysteria2)"
-      - "H2-RU (Hysteria2)"
-      - "H2-FI (Hysteria2)"
-      - "Trojan-US-1"
-      - "Trojan-US-2"
-      - "VMess-UK"
-      - "VMess-HK"
-      - "DIRECT"
+      - "🚀 انتخاب خودکار (همه کارها)"
+      - "🤖 هوش مصنوعی (AI)"
+      - DIRECT
+    use:
+      - kobabi
+      - nowalls
+      - airport
 
 # ==================== قوانین ====================
 rules:
+  # 1. شبکه‌های داخلی و لوکال
   - IP-CIDR,127.0.0.0/8,DIRECT
   - IP-CIDR,192.168.0.0/16,DIRECT
   - IP-CIDR,10.0.0.0/8,DIRECT
 
+  # 2. سایت‌های ایرانی مستقیم باز شوند
   - DOMAIN-SUFFIX,ir,DIRECT
   - GEOIP,IR,DIRECT
 
-  - DOMAIN-SUFFIX,openai.com,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,chatgpt.com,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,anthropic.com,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,claude.ai,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,gemini.google.com,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,bard.google.com,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,deepseek.com,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,grok.com,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,x.ai,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,perplexity.ai,🤖 AI (Auto)
-  - DOMAIN-SUFFIX,copilot.microsoft.com,🤖 AI (Auto)
+  # 3. هدایت هوشمند سایت‌های هوش مصنوعی به گروه اختصاصی AI
+  - DOMAIN-SUFFIX,openai.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,anthropic.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,claude.ai,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,gemini.google.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,bard.google.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,deepseek.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,grok.com,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,x.ai,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,perplexity.ai,🤖 هوش مصنوعی (AI)
+  - DOMAIN-SUFFIX,copilot.microsoft.com,🤖 هوش مصنوعی (AI)
 
-  - MATCH,MMOBI
+  # 4. بقیه ترافیک‌ها از گروه خودکار عبور کنند
+  - MATCH,🚀 انتخاب خودکار (همه کارها)
