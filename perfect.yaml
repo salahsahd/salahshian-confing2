@@ -1,3 +1,7 @@
+# ============================================================
+# کانفیگ نهایی و اصلاح‌شده (ترکیب سرورهای خودکار و هوش مصنوعی)
+# ============================================================
+
 mixed-port: 7890
 allow-lan: false
 mode: rule
@@ -11,16 +15,23 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   nameserver:
-    - 8.8.8.8
     - 1.1.1.1
+    - 8.8.8.8
     - https://dns.google/dns-query
   fallback:
     - 9.9.9.9
     - 208.67.222.222
+  fake-ip-filter:
+    - '*.lan'
+    - '*.local'
+    - '+.chatgpt.com'
+    - '+.openai.com'
+    - '+.anthropic.com'
+    - '+.claude.ai'
+    - '+.gemini.google.com'
 
-# ==================== دریافت خودکار سرورها ====================
+# ==================== دریافت خودکار سرورها (برای وبگردی) ====================
 proxy-providers:
-  # منبع اول: مخزن Kobabi (به‌روزرسانی خودکار)
   kobabi:
     type: http
     url: "https://raw.githubusercontent.com/liketolivefree/kobabi/main/clash_mt_ir_prov_l.yaml"
@@ -31,7 +42,6 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
       interval: 300
 
-  # منبع دوم: NoMoreWalls
   nowalls:
     type: http
     url: "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.meta.yml"
@@ -42,7 +52,6 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
       interval: 300
 
-  # منبع سوم: Airport (تست شده و پایدار)
   airport:
     type: http
     url: "https://raw.githubusercontent.com/dongchengjie/airport/main/subs/merged/tested_within.yaml"
@@ -53,31 +62,78 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
       interval: 300
 
+# ==================== سرورهای ثابت و اختصاصی هوش مصنوعی ====================
+proxies:
+  - name: "US-AI-1"
+    type: vless
+    server: 47.253.226.114
+    port: 443
+    uuid: 055a1ce8-2a16-4a0d-a2c2-22826c9b2413
+    network: tcp
+    tls: true
+    flow: xtls-rprx-vision
+    servername: www.cloudflare.com
+    reality-opts:
+      public-key: Svl81isn16RPAFnjtmYw7A6TPnsEPLHuYYaJht65Rzc
+    client-fingerprint: chrome
+
+  - name: "US-AI-2"
+    type: vless
+    server: 140.248.176.149
+    port: 443
+    uuid: cbcf2255-6d66-4039-b7d6-c10d6ffc99e7
+    network: tcp
+    tls: true
+    flow: xtls-rprx-vision
+    servername: ssl.fastly.com
+    reality-opts:
+      public-key: NozDA4apA_XQ_wzcJCZx7VXAD285J_HSs4w_GvBfJHA
+      short-id: 63903c2e
+    client-fingerprint: chrome
+
+  - name: "US-AI-3"
+    type: vless
+    server: 199.232.203.85
+    port: 443
+    uuid: cbcf2255-6d66-4039-b7d6-c10d6ffc99e7
+    network: tcp
+    tls: true
+    flow: xtls-rprx-vision
+    servername: default.ssl.fastly.net
+    reality-opts:
+      public-key: UQPZ09IzbcH0QtWGBQWlXInQ0d0FnfOz6wRdWvgxe3Y
+      short-id: ca9310c5654fa333
+    client-fingerprint: chrome
+
 # ==================== گروه‌های پروکسی ====================
 proxy-groups:
-  # --- گروه خودکار اصلی (انتخاب سریع‌ترین سرور از بین همه منابع) ---
+  # 1. گروه خودکار برای همه کارها (ترکیب سرورهای ثابت + سرورهای خودکار)
   - name: "🚀 انتخاب خودکار (همه کارها)"
     type: url-test
     url: "http://www.gstatic.com/generate_204"
     interval: 300
     tolerance: 50
+    proxies:
+      - "US-AI-1"
+      - "US-AI-2"
+      - "US-AI-3"
     use:
       - kobabi
       - nowalls
       - airport
 
-  # --- گروه اختصاصی هوش مصنوعی (فقط سرورهای آمریکا) ---
+  # 2. گروه اختصاصی هوش مصنوعی (فقط از سرورهای ثابت آمریکا استفاده می‌کند تا قطعی نداشته باشد)
   - name: "🤖 هوش مصنوعی (AI)"
     type: url-test
     url: "https://chatgpt.com"
     interval: 300
     tolerance: 50
-    use:
-      - kobabi
-      - nowalls
-      - airport
+    proxies:
+      - "US-AI-1"
+      - "US-AI-2"
+      - "US-AI-3"
 
-  # --- گروه انتخاب دستی (با فیلتر کشورها) ---
+  # 3. انتخاب دستی
   - name: "🎯 انتخاب دستی"
     type: select
     proxies:
@@ -89,18 +145,46 @@ proxy-groups:
       - nowalls
       - airport
 
-# ==================== قوانین ====================
+# ==================== منابع قوانین ====================
+rule-providers:
+  iran-domains:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Chocolate4U/Iran-clash-rules/release/ir.txt"
+    path: ./ruleset/iran-domains.txt
+    interval: 86400
+
+  iran-ip:
+    type: http
+    behavior: ipcidr
+    url: "https://raw.githubusercontent.com/Chocolate4U/Iran-clash-rules/release/ircidr.txt"
+    path: ./ruleset/iran-ip.txt
+    interval: 86400
+
+  ads:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Chocolate4U/Iran-clash-rules/release/ads.txt"
+    path: ./ruleset/ads.txt
+    interval: 86400
+
+# ==================== قوانین نهایی ====================
 rules:
-  # 1. شبکه‌های داخلی و لوکال
+  # 1. مسدود کردن تبلیغات
+  - RULE-SET,ads,REJECT
+
+  # 2. شبکه‌های داخلی و لوکال
   - IP-CIDR,127.0.0.0/8,DIRECT
   - IP-CIDR,192.168.0.0/16,DIRECT
   - IP-CIDR,10.0.0.0/8,DIRECT
 
-  # 2. سایت‌های ایرانی مستقیم باز شوند
+  # 3. سایت‌های ایرانی مستقیم باز شوند
+  - RULE-SET,iran-domains,DIRECT
+  - RULE-SET,iran-ip,DIRECT,no-resolve
   - DOMAIN-SUFFIX,ir,DIRECT
   - GEOIP,IR,DIRECT
 
-  # 3. هدایت هوشمند سایت‌های هوش مصنوعی به گروه اختصاصی AI
+  # 4. هدایت هوشمند سایت‌های هوش مصنوعی به گروه اختصاصی
   - DOMAIN-SUFFIX,openai.com,🤖 هوش مصنوعی (AI)
   - DOMAIN-SUFFIX,chatgpt.com,🤖 هوش مصنوعی (AI)
   - DOMAIN-SUFFIX,anthropic.com,🤖 هوش مصنوعی (AI)
@@ -113,5 +197,5 @@ rules:
   - DOMAIN-SUFFIX,perplexity.ai,🤖 هوش مصنوعی (AI)
   - DOMAIN-SUFFIX,copilot.microsoft.com,🤖 هوش مصنوعی (AI)
 
-  # 4. بقیه ترافیک‌ها از گروه خودکار عبور کنند
+  # 5. بقیه ترافیک‌ها از گروه خودکار عبور کنند
   - MATCH,🚀 انتخاب خودکار (همه کارها)
